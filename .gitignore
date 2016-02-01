@@ -37,13 +37,10 @@ node_modules
 
 
 ### PhPStorm ###
-.idea/
+.idea/cd
 
 # Floobits
 .floo
 .floobit
 .floo
 .flooignore
-
-## API keys
-client/env/config.js

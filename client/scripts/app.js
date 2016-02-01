@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'addFriend' function just adds the class 'friend'
   //to all messages sent by the user
-  server: 'https://api.parse.com/1/classes/chatterbox/',
+  server: 'http://localhost:3000/classes/chatterbox/',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -30,7 +30,7 @@ var app = {
     app.fetch(false);
 
     // Poll for new messages
-    setInterval(app.fetch, 3000);
+    // setInterval(app.fetch, 3000);
   },
 
   send: function(data) {
