@@ -58,6 +58,7 @@ var requestHandler = function(request, response) {
       if(!(room in messageData)) {
         messageData[room] = [];
       }
+      console.log(request);
       statusCode = 201;
       var body = '';
       request.on('data', function(data) {
@@ -98,3 +99,7 @@ var defaultCorsHeaders = {
 };
 
 module.exports = requestHandler;
+
+
+
+

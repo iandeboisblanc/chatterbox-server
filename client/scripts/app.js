@@ -46,6 +46,7 @@ var app = {
       contentType: 'application/json',
       success: function (data) {
         // Trigger a fetch to update the messages, pass true to animate
+        console.log('successful post!');
         app.fetch();
       },
       error: function (data) {
@@ -61,13 +62,13 @@ var app = {
       contentType: 'application/json',
       // data: { order: '-createdAt'},
       success: function(data) {
+        console.log('successful fetch!');
         // Don't bother if we have nothing to work with
+        app.stopSpinner();
         if (!data.results || !data.results.length) { return; }
-
         // Get the last message
         var mostRecentMessage = data.results[data.results.length-1];
         var displayedRoom = $('.chat span').first().data('roomname');
-        app.stopSpinner();
         // Only bother updating the DOM if we have a new message
         if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
           // Update the UI with the fetched rooms
@@ -212,6 +213,7 @@ var app = {
   },
 
   handleSubmit: function(evt) {
+    console.log('handling submit!');
     var message = {
       username: app.username,
       text: app.$message.val(),
