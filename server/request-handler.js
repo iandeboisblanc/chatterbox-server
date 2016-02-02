@@ -35,33 +35,40 @@ var requestHandler = function(request, response) {
 
   console.log("Serving request type " + request.headers['access-control-request-method'] + '/' + request.method + " for url " + request.url);
   // console.log(request.headers);
+  var url = (request.url).split('/');
+  var room = url[2];
+  console.log(url,room);
 
   if(request.headers['access-control-request-method'] === 'GET' || request.method === 'GET') {
     //give messageData
     //should 404 if file not there
-    if(request.url in messageData) {
-      statusCode = 200;
-      result = messageData[request.url];
-    } else {
+    if(url[1] !== 'classes') {
       statusCode = 404;
+    } else {
+      // what is url[1]? Always a room? Ever something more in url? If there are messages for that room set results to them
+      if(room in messageData) {
+        result = messageData[room];
+      }
     }
-    // response.write(JSON.stringify({results:messageData}));  
+      
   }
 
   if(request.headers['access-control-request-method'] === 'POST' || request.method === 'POST') {
-    if(!(request.url in messageData)) {
-      messageData[request.url] = [];
+    if(url[1] === 'classes') {
+      if(!(room in messageData)) {
+        messageData[room] = [];
+      }
+      statusCode = 201;
+      var body = '';
+      request.on('data', function(data) {
+        body += data;
+      });
+      request.on('end', function() {
+        var post = JSON.parse(body);
+        //extend with various things
+        messageData[room].push(post);
+      });  
     }
-    statusCode = 201;
-    var body = '';
-    request.on('data', function(data) {
-      body += data;
-    });
-    request.on('end', function() {
-      var post = JSON.parse(body);
-      //extend with various things
-      messageData[request.url].push(post);
-    });
   }
 
   // See the note below about CORS headers.
