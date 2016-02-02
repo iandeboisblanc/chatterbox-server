@@ -29,36 +29,29 @@ var requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   var statusCode = 200;
   headers['Content-Type'] = 'application/json';
-  // headers['Content-Type'] = 'text/plain';
   var result = [];
 
 
   console.log("Serving request type " + request.headers['access-control-request-method'] + '/' + request.method + " for url " + request.url);
-  // console.log(request.headers);
   var url = (request.url).split('/');
   var room = url[2];
   console.log(url,room);
 
-  if(request.headers['access-control-request-method'] === 'GET' || request.method === 'GET') {
-    //give messageData
-    //should 404 if file not there
+  if(request.method === 'GET') {
     if(url[1] !== 'classes') {
       statusCode = 404;
     } else {
-      // what is url[1]? Always a room? Ever something more in url? If there are messages for that room set results to them
       if(room in messageData) {
         result = messageData[room];
       }
     }
-      
   }
 
-  if(request.headers['access-control-request-method'] === 'POST' || request.method === 'POST') {
+  if(request.method === 'POST') {
     if(url[1] === 'classes') {
       if(!(room in messageData)) {
         messageData[room] = [];
       }
-      console.log(request);
       statusCode = 201;
       var body = '';
       request.on('data', function(data) {
@@ -72,25 +65,11 @@ var requestHandler = function(request, response) {
     }
   }
 
-  // See the note below about CORS headers.
   response.writeHead(statusCode, headers);
   response.write(JSON.stringify({results:result}));  
-  
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-
   response.end();
 };
 
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
-//
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
 var defaultCorsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",

@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'addFriend' function just adds the class 'friend'
   //to all messages sent by the user
-  server: 'http://127.0.0.1:3000/classes/room',
+  server: 'http://127.0.0.1:3000/classes/',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -34,6 +34,7 @@ var app = {
   },
 
   send: function(data) {
+    console.log('data is', data);
     app.startSpinner();
     // Clear messages input
     app.$message.val('');
@@ -114,7 +115,7 @@ var app = {
   },
 
   populateRooms: function(results) {
-    app.$roomSelect.html('<option value="__newRoom">New room...</option><option value="" selected>Lobby</option></select>');
+    app.$roomSelect.html('<option value="__newRoom">New room...</option></select>');
 
     if (results) {
       var rooms = {};
