@@ -1,9 +1,10 @@
 
+console.log("I am reading app.js");
 var app = {
 
   //TODO: The current 'addFriend' function just adds the class 'friend'
   //to all messages sent by the user
-  server: 'http://127.0.0.1:3000/classes/',
+  server: 'http://127.0.0.1:3000/',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -26,6 +27,7 @@ var app = {
     app.$roomSelect.on('change', app.saveRoom);
 
     // Fetch previous messages
+    app.requestHTML();
     app.startSpinner();
     app.fetch(false);
 
@@ -34,14 +36,14 @@ var app = {
   },
 
   send: function(data) {
-    console.log('data is', data);
+    console.log('send data is', data);
     app.startSpinner();
     // Clear messages input
     app.$message.val('');
 
     // POST the message to the server
     $.ajax({
-      url: app.server,
+      url: app.server + 'classes/' + app.roomname,
       type: 'POST',
       data: JSON.stringify(data),
       contentType: 'application/json',
@@ -56,9 +58,24 @@ var app = {
     });
   },
 
-  fetch: function(animate) {
+  requestHTML: function(data) {
     $.ajax({
       url: app.server,
+      type: 'PUT',
+      data: JSON.stringify(data),
+      contentType: 'text/html',
+      success: function (data) {
+        console.log('successful request!');
+      },
+      error: function (data) {
+        console.error('failed request');
+      }
+    });
+  },
+
+  fetch: function(animate) {
+    $.ajax({
+      url: app.server + 'classes/messages',
       type: 'GET',
       contentType: 'application/json',
       // data: { order: '-createdAt'},
