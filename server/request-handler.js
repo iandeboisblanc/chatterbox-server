@@ -1,3 +1,5 @@
+var qs = require('querystring');
+
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -12,7 +14,7 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-var messageData =[];
+var messageData ={};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -27,48 +29,48 @@ var requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   var statusCode = 200;
   headers['Content-Type'] = 'application/json';
+  // headers['Content-Type'] = 'text/plain';
+  var result = [];
 
-  console.log("Serving request type " + request.method + " for url " + request.url);
+
+  console.log("Serving request type " + request.headers['access-control-request-method'] + '/' + request.method + " for url " + request.url);
   // console.log(request.headers);
 
   if(request.headers['access-control-request-method'] === 'GET' || request.method === 'GET') {
     //give messageData
     //should 404 if file not there
-    // if(request.url === '/classes/room') {}
-    statusCode = 200;
+    if(request.url in messageData) {
+      statusCode = 200;
+      result = messageData[request.url];
+    } else {
+      statusCode = 404;
+    }
+    // response.write(JSON.stringify({results:messageData}));  
   }
 
   if(request.headers['access-control-request-method'] === 'POST' || request.method === 'POST') {
-    //push incoming data to messageData
+    if(!(request.url in messageData)) {
+      messageData[request.url] = [];
+    }
     statusCode = 201;
-    console.log('post request received!');
+    var body = '';
+    request.on('data', function(data) {
+      body += data;
+    });
+    request.on('end', function() {
+      var post = JSON.parse(body);
+      //extend with various things
+      messageData[request.url].push(post);
+    });
   }
 
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
-  // console.log(request);
-
-  // The outgoing status.
-
   // See the note below about CORS headers.
-  
-
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
   response.writeHead(statusCode, headers);
-
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
+  response.write(JSON.stringify({results:result}));  
+  
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
 
-  response.write(JSON.stringify({results:[]}));  
   response.end();
 };
 
