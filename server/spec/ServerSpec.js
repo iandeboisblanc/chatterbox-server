@@ -27,6 +27,8 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/classes/room1', 'GET');
     var res = new stubs.response();
 
+    // console.log(handler.requestHandler);
+
     handler.requestHandler(req, res);
 
     expect(JSON.parse.bind(this, res._data)).to.not.throw();

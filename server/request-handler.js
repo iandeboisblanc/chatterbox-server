@@ -32,10 +32,9 @@ var requestHandler = function(request, response) {
   var result = [];
 
 
-  console.log("Serving request type " + request.headers['access-control-request-method'] + '/' + request.method + " for url " + request.url);
+  // console.log("Serving request type " + request.method + " for url " + request.url);
   var url = (request.url).split('/');
   var room = url[2];
-  console.log(url,room);
 
   if(request.method === 'GET') {
     if(url[1] !== 'classes') {
@@ -66,8 +65,9 @@ var requestHandler = function(request, response) {
   }
 
   response.writeHead(statusCode, headers);
-  response.write(JSON.stringify({results:result}));  
-  response.end();
+  // console.log(response.write);
+  // response.write();  
+  response.end(JSON.stringify({results:result}));
 };
 
 var defaultCorsHeaders = {
@@ -77,7 +77,7 @@ var defaultCorsHeaders = {
   "access-control-max-age": 30 // Seconds.
 };
 
-module.exports = requestHandler;
+exports.requestHandler = requestHandler;
 
 
 
