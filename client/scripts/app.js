@@ -1,4 +1,3 @@
-
 console.log("I am reading app.js");
 var app = {
 
@@ -12,8 +11,7 @@ var app = {
 
   init: function() {
     // Get username
-    app.username = window.location.search.substr(10);
-
+    app.username = (prompt('What is your name?') || 'anonymous');
     // Cache jQuery selectors
     app.$main = $('#main');
     app.$message = $('#message');
@@ -28,7 +26,6 @@ var app = {
 
     // Fetch previous messages
     app.requestHTML();
-    app.startSpinner();
     app.fetch(false);
 
     // Poll for new messages
@@ -37,7 +34,6 @@ var app = {
 
   send: function(data) {
     console.log('send data is', data);
-    app.startSpinner();
     // Clear messages input
     app.$message.val('');
 
@@ -80,9 +76,8 @@ var app = {
       contentType: 'application/json',
       // data: { order: '-createdAt'},
       success: function(data) {
-        console.log('successful fetch!');
         // Don't bother if we have nothing to work with
-        app.stopSpinner();
+        console.log(data);
         if (!data.results || !data.results.length) { return; }
         // Get the last message
         var mostRecentMessage = data.results[data.results.length-1];
@@ -113,7 +108,6 @@ var app = {
     // Clear existing messages
 
     app.clearMessages();
-    app.stopSpinner();
     if (Array.isArray(results)) {
       // Add all fetched messages
       results.forEach(app.addMessage);
@@ -136,8 +130,10 @@ var app = {
 
     if (results) {
       var rooms = {};
+      console.log('results:',results);
       results.forEach(function(data) {
         var roomname = data.roomname;
+        console.log('data:',data, 'roomname:', roomname);
         if (roomname && !rooms[roomname]) {
           // Add the room to the select menu
           app.addRoom(roomname);
@@ -221,7 +217,6 @@ var app = {
       }
     }
     else {
-      app.startSpinner();
       // Store as undefined for empty names
       app.roomname = app.$roomSelect.val();
 
@@ -243,15 +238,5 @@ var app = {
     // Stop the form from submitting
     evt.preventDefault();
   },
-
-  startSpinner: function(){
-    $('.spinner img').show();
-    $('form input[type=submit]').attr('disabled', "true");
-  },
-
-  stopSpinner: function(){
-    $('.spinner img').fadeOut('fast');
-    $('form input[type=submit]').attr('disabled', null);
-  }
 };
 

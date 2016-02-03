@@ -1,4 +1,4 @@
-var qs = require('querystring');
+var fs = require('fs');
 
 /*************************************************************
 
@@ -26,32 +26,119 @@ var requestHandler = function(request, response) {
   // Documentation for both request and response can be found in the HTTP section at
   // http://nodejs.org/documentation/api/
 
+var defaultCorsHeaders = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "access-control-allow-headers": "content-type, accept",
+  "access-control-max-age": 30 // Seconds.
+};
+// console.log(request.url);
+
   var headers = defaultCorsHeaders;
-  var statusCode = 200;
-  headers['Content-Type'] = 'application/json';
-  var result = [];
-
-
+  var statusCode = 404;
+  // console.log(request, request.url);
+  if(request.url === '/') {
+    // serve the html
+    fs.readFile(__dirname + '/../client/index.html', "utf-8", function(error,data){
+      if(error) {
+        console.log('error!!!');
+        headers['Content-Type'] = 'text/plain';
+        response.writeHead(405, headers);
+        response.end();
+      } else {
+        headers['Content-Type'] = 'text/html';
+        response.writeHead(202,headers);
+        response.end(data);
+      }
+   });
+  }
   // console.log("Serving request type " + request.method + " for url " + request.url);
   var url = (request.url).split('/');
   var room = url[2];
 
+  if(url[1] === 'client') {
+
+    if(url[2] === 'styles') {
+      fs.readFile(__dirname + '/../client/styles/styles.css', "utf-8", function(error,data){
+        if(error) {
+          console.log('error!!!');
+          headers['Content-Type'] = 'text/plain';
+          response.writeHead(406, headers);
+          response.end();
+        } else {
+          console.log(request.url);
+          headers['Content-Type'] = 'text/css';
+          response.writeHead(202,headers);
+          response.end(data, "utf-8");
+          return;
+        }
+     }); 
+    }
+
+    if(url[2] === 'env') {
+      fs.readFile(__dirname + '/../client/env/config.js', "utf-8", function(error,data){
+        if(error) {
+          console.log('error!!!');
+          headers['Content-Type'] = 'text/plain';
+          response.writeHead(406, headers);
+          response.end();
+        } else {
+          console.log(request.url);
+          headers['Content-Type'] = 'text/javascript';
+          response.writeHead(202,headers);
+          response.end(data, "utf-8");
+          return;
+        }
+     }); 
+    }
+
+    if(url[2] === 'scripts') {
+      fs.readFile(__dirname + '/../client/scripts/app.js', "utf-8", function(error,data){
+        if(error) {
+          console.log('error!!!');
+          headers['Content-Type'] = 'text/plain';
+          response.writeHead(406, headers);
+          response.end();
+        } else {
+          console.log(request.url);
+          headers['Content-Type'] = 'text/javascript';
+          response.writeHead(202,headers);
+          response.end(data, "utf-8");
+          return;
+        }
+     }); 
+    }
+  }
+  // Handle data
   if(request.method === 'GET') {
-    if(url[1] !== 'classes') {
-      statusCode = 404;
-    } else {
-      if(room in messageData) {
+    if(url[1] === 'classes') {
+      var result = [];
+      statusCode = 200;
+      headers['Content-Type'] = 'application/json';
+      if(room === 'messages') {
+        // serve all messages
+        for(var r in messageData) {
+          for(var i = 0; i < messageData[r].length; i++) {
+            result.push(messageData[r][i]);
+          }
+        }
+      } else if(room in messageData) {
         result = messageData[room];
       }
-    }
+      console.log(result);
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify({results:result}));
+    }    
   }
 
   if(request.method === 'POST') {
+    console.log('Post requested.', url[1]);
     if(url[1] === 'classes') {
       if(!(room in messageData)) {
         messageData[room] = [];
       }
       statusCode = 201;
+      headers['Content-Type'] = 'application/json';
       var body = '';
       request.on('data', function(data) {
         body += data;
@@ -61,21 +148,13 @@ var requestHandler = function(request, response) {
         //extend with various things
         messageData[room].push(post);
       });  
+      response.writeHead(statusCode, headers);
+      response.end();
     }
   }
-
-  response.writeHead(statusCode, headers);
-  // console.log(response.write);
-  // response.write();  
-  response.end(JSON.stringify({results:result}));
 };
 
-var defaultCorsHeaders = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 30 // Seconds.
-};
+
 
 exports.requestHandler = requestHandler;
 
