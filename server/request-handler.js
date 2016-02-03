@@ -36,9 +36,13 @@ var defaultCorsHeaders = {
 
   var headers = defaultCorsHeaders;
   var statusCode = 404;
-  // console.log(request, request.url);
   if(request.url === '/') {
-    // serve the html
+    // open historicalFile
+    fs.readFile(__dirname + '/messages.txt', 'utf-8', function(err, data) {
+      if(!err) {
+        messageData = JSON.parse(data);
+      }
+    });
     fs.readFile(__dirname + '/../client/index.html', "utf-8", function(error,data){
       if(error) {
         console.log('error!!!');
@@ -52,12 +56,10 @@ var defaultCorsHeaders = {
       }
    });
   }
-  // console.log("Serving request type " + request.method + " for url " + request.url);
   var url = (request.url).split('/');
   var room = url[2];
 
   if(url[1] === 'client') {
-
     if(url[2] === 'styles') {
       fs.readFile(__dirname + '/../client/styles/styles.css', "utf-8", function(error,data){
         if(error) {
@@ -109,7 +111,6 @@ var defaultCorsHeaders = {
      }); 
     }
   }
-  // Handle data
   if(request.method === 'GET') {
     if(url[1] === 'classes') {
       var result = [];
@@ -125,7 +126,6 @@ var defaultCorsHeaders = {
       } else if(room in messageData) {
         result = messageData[room];
       }
-      console.log(result);
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify({results:result}));
     }    
@@ -147,14 +147,20 @@ var defaultCorsHeaders = {
         var post = JSON.parse(body);
         //extend with various things
         messageData[room].push(post);
+        // write to historical file
+        var stringData = JSON.stringify(messageData);
+        fs.writeFile(__dirname + '/messages.txt', stringData, function(err) {
+          if(err) {
+            console.log('Oh no, it is ' + err);
+          }
+        });
       });  
+
       response.writeHead(statusCode, headers);
       response.end();
     }
   }
 };
-
-
 
 exports.requestHandler = requestHandler;
 
