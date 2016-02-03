@@ -3,13 +3,15 @@ var app = express();
 var fs = require('fs');
 var messageData = {};
 
+app.use(express.static(__dirname + '/../client'));
+
 app.get('/', function(req, res) {
   fs.readFile(__dirname + '/messages.txt', 'utf-8', function(err, data) {
     if(!err) {
       messageData = JSON.parse(data);
     }
   });
-  fs.readFile(__dirname + '/../client/index.html', "utf-8", function(error,data){
+  fs.readFile('/client/index.html', "utf-8", function(error,data){
     if(error) {
       res.send(error);
     } else {
@@ -18,21 +20,18 @@ app.get('/', function(req, res) {
   });
 });
 
-app.get('/client/*', function(req, res) {
-  var reqUrl = req.url.split('/')[2];
-  if(reqUrl === ___) {
-    //do a ___ thing
-  } else if(reqUrl === __d__) {
-    //do a __d__ thing
-  }
-});
-
 app.get('/classes/*', function(req, res) {
+  var result = [];
   if(req.url.split('/')[2] === 'messages') {
-    //all
+    for(var r in messageData) {
+      for(var i = 0; i < messageData[r].length; i++) {
+        result.push(messageData[r][i]);
+      }
+    }
   } else {
-    //some
+    result = messageData[room];
   }
+  res.send({results:result});
 });
 
 app.post('/classes/*', function(req, res) {
@@ -40,7 +39,6 @@ app.post('/classes/*', function(req, res) {
   if(!(room in messageData)) {
     messageData[room] = [];
   }
-  // headers['Content-Type'] = 'application/json';
   var body = '';
   req.on('data', function(data) {
     body += data;
@@ -53,7 +51,8 @@ app.post('/classes/*', function(req, res) {
         console.log('Oh no, it is ' + err);
       }
     });
-  });  
+  });
+  res.send();  
 });
 
 app.listen(3000, function() {

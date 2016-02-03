@@ -25,7 +25,6 @@ var app = {
     app.$roomSelect.on('change', app.saveRoom);
 
     // Fetch previous messages
-    app.requestHTML();
     app.fetch(false);
 
     // Poll for new messages
@@ -50,21 +49,6 @@ var app = {
       },
       error: function (data) {
         console.error('chatterbox: Failed to send message');
-      }
-    });
-  },
-
-  requestHTML: function(data) {
-    $.ajax({
-      url: app.server,
-      type: 'PUT',
-      data: JSON.stringify(data),
-      contentType: 'text/html',
-      success: function (data) {
-        console.log('successful request!');
-      },
-      error: function (data) {
-        console.error('failed request');
       }
     });
   },
